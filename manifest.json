@@ -1,0 +1,24 @@
+{
+  "name": "ToolVault - 1000 أداة في جيبك",
+  "short_name": "ToolVault",
+  "description": "أكبر مجموعة أدوات واختصارات لتوفير الوقت - Nourddine Abatal",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#1a1a2e",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "developer": {
+    "name": "Nourddine Abatal",
+    "url": "https://ko-fi.com/nourddineabatal"
+  }
+}

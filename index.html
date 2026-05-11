@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToolVault - 1000 أداة في جيبك</title>
+    <meta name="description" content="تطبيق يحتوي على 1000 أداة واختصار لتوفير الوقت وتبسيط المهام اليومية">
+    <meta name="author" content="Nourddine Abatal">
+    <meta name="copyright" content="© 2026 Nourddine Abatal. جميع الحقوق محفوظة.">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>">
+    <meta name="theme-color" content="#1a1a2e">
+    
+    <style>
+        :root {
+            --bg: #0f0f1a;
+            --card: #1a1a2e;
+            --text: #e0e0e0;
+            --sub: #aaa;
+            --red: #e74c3c;
+            --green: #2ecc71;
+            --gold: #f0a500;
+            --blue: #3498db;
+            --border: #2a2a3e;
+            --input-bg: #222240;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* الهيدر */
+        .header {
+            text-align: center;
+            padding: 30px 0 20px;
+        }
+        .header .icon { font-size: 55px; }
+        .header h1 {
+            font-size: 2em;
+            margin: 8px 0 4px;
+            background: linear-gradient(135deg, #e74c3c, #f0a500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header .slogan { color: var(--sub); font-size: 0.9em; }
+
+        /* شارة ذهبية */
+        .gold-badge {
+            display: none;
+            text-align: center;
+            background: linear-gradient(135deg, #f0a500, #ffcc00);
+            color: #000;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.8em;
+            margin: 0 auto 16px;
+            width: fit-content;
+        }
+        .gold-badge.active { display: block; }
+
+        /* عداد الأدوات */
+        .counter {
+            text-align: center;
+            color: var(--sub);
+            font-size: 0.8em;
+            margin-bottom: 16px;
+        }
+        .counter span { color: var(--gold); font-weight: bold; }
+
+        /* شريط البحث */
+        .search-bar {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 14px 20px;
+            padding-right: 45px;
+            border-radius: 30px;
+            border: 2px solid var(--border);
+            background: var(--input-bg);
+            color: var(--text);
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 20px rgba(52,152,219,0.2);
+        }
+        .search-bar .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+        }
+
+        /* أزرار التصنيف */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+            background: var(--card);
+            color: var(--sub);
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            font-size: 0.85em;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .tab.active.red {
+            border-color: var(--red);
+            background: #e74c3c22;
+            color: var(--red);
+        }
+        .tab.active.green {
+            border-color: var(--green);
+            background: #2ecc7122;
+            color: var(--green);
+        }
+        .tab .count {
+            display: block;
+            font-size: 0.75em;
+            opacity: 0.7;
+        }
+
+        /* قائمة الأدوات */
+        .tools-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tool-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .tool-card:hover {
+            border-color: var(--blue);
+            background: #1a1a35;
+        }
+        .tool-card.red:hover { border-color: var(--red); }
+        .tool-card.green:hover { border-color: var(--green); }
+        
+        .tool-info { flex: 1; text-align: right; }
+        .tool-name { font-weight: bold; font-size: 0.9em; }
+        .tool-desc { font-size: 0.72em; color: var(--sub); margin-top: 3px; }
+        .tool-category {
+            display: inline-block;
+            font-size: 0.65em;
+            padding: 3px 10px;
+            border-radius: 10px;
+            margin-top: 4px;
+        }
+        .cat-shortcut { background: #e74c3c22; color: var(--red); }
+        .cat-action { background: #2ecc7122; color: var(--green); }
+
+        .tool-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            font-weight: bold;
+            font-size: 0.75em;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+            white-space: nowrap;
+            margin-right: 10px;
+        }
+        .btn-shortcut { background: var(--red); color: white; }
+        .btn-shortcut:hover { background: #c0392b; }
+        .btn-action { background: var(--green); color: white; }
+        .btn-action:hover { background: #27ae60; }
+
+        /* رسالة لا توجد نتائج */
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--sub);
+        }
+        .no-results .icon { font-size: 40px; margin-bottom: 10px; }
+
+        /* قسم الترقية */
+        .upgrade-banner {
+            background: linear-gradient(135deg, #2a2a0a, #1a1a00);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 24px;
+        }
+        .upgrade-banner h3 { color: var(--gold); margin-bottom: 6px; }
+        .upgrade-banner p { font-size: 0.82em; color: #ccc; margin-bottom: 12px; }
+        .btn-upgrade {
+            background: linear-gradient(135deg, #f0a500, #ffcc00);
+            color: #000;
+            padding: 12px 30px;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9em;
+        }
+        .btn-upgrade:hover { box-shadow: 0 4px 20px rgba(240,165,0,0.4); }
+
+        /* تذييل */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #555;
+            font-size: 0.7em;
+            line-height: 2.2;
+        }
+        footer a { color: #777; text-decoration: none; }
+        footer a:hover { color: var(--gold); }
+        .copyright { color: #444; }
+
+        /* محتوى محجوب للذهبي */
+        .locked-tools {
+            text-align: center;
+            padding: 30px;
+            background: var(--card);
+            border-radius: 14px;
+            border: 2px dashed var(--gold);
+            margin-top: 16px;
+        }
+        .locked-tools .lock-icon { font-size: 40px; margin-bottom: 10px; }
+        .locked-tools p { color: var(--sub); font-size: 0.85em; }
+
+        /* إشعار */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.8em;
+            font-weight: bold;
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 999;
+            white-space: nowrap;
+        }
+        #toast.show { opacity: 1; bottom: 40px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- هيدر -->
+        <div class="header">
+            <div class="icon">🧰</div>
+            <h1>ToolVault</h1>
+            <p class="slogan">1000 أداة في جيبك</p>
+        </div>
+
+        <!-- شارة ذهبية -->
+        <div class="gold-badge" id="goldBadge">👑 ذهبي - 1000 أداة كاملة</div>
+
+        <!-- عداد -->
+        <div class="counter">
+            📊 <span id="toolCount">100</span> أداة متاحة الآن | 
+            <span id="lockedCount" style="color:#e74c3c;">900</span> محجوبة للذهبي
+        </div>
+
+        <!-- شريط بحث -->
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="ابحث عن أي أداة... (مثال: جيميل، واي فاي، ترجمة)" oninput="filterTools()">
+        </div>
+
+        <!-- أزرار التصنيف -->
+        <div class="tabs">
+            <button class="tab active red" id="tabShortcut" onclick="switchTab('shortcut')">
+                🔴 اختصارات سريعة
+                <span class="count" id="shortcutCount">50</span>
+            </button>
+            <button class="tab green" id="tabAction" onclick="switchTab('action')">
+                🟢 أوامر مباشرة
+                <span class="count" id="actionCount">50</span>
+            </button>
+        </div>
+
+        <!-- قائمة الأدوات -->
+        <div class="tools-list" id="toolsList"></div>
+
+        <!-- قسم الترقية -->
+        <div class="upgrade-banner" id="upgradeBanner">
+            <h3>👑 افتح 1000 أداة كاملة</h3>
+            <p>900 أداة إضافية • بحث متقدم • تخصيص كامل • تحديثات أسبوعية</p>
+            <button class="btn-upgrade" onclick="showPayment()">
+                💳 اشترك الآن بـ 9.99$ مدى الحياة
+            </button>
+            <p style="font-size:0.7em; margin-top:8px; color:#888;">مرة واحدة • إلى الأبد</p>
+        </div>
+
+        <!-- تذييل -->
+        <footer>
+            <p>
+                <a href="https://ko-fi.com/nourddineabatal" target="_blank">☕ Ko-fi</a>
+                &nbsp;•&nbsp;
+                <a href="https://www.paypal.com/paypalme/nourddineabatal06" target="_blank">💳 PayPal</a>
+            </p>
+            <p class="copyright">© 2026 Nourddine Abatal. جميع الحقوق محفوظة.</p>
+            <p style="font-size:0.65em;">nourddineabatal06@gmail.com</p>
+        </footer>
+    </div>
+
+    <!-- إشعار -->
+    <div id="toast"></div>
+
+    <script>
+        // ============================================
+        // © 2026 Nourddine Abatal. All rights reserved.
+        // ToolVault - 1000 أداة في جيبك
+        // ============================================
+
+        let currentTab = 'shortcut';
+        let isGold = false;
+        let allTools = [];
+        let filteredTools = [];
+
+        // ========== قاعدة البيانات المضمنة (100 أداة) ==========
+        const SHORTCUT_TOOLS = [
+            { name: "إدارة أجهزة Google", desc: "تسجيل الخروج من أي جهاز", url: "https://myaccount.google.com/device-activity", category: "أمان", type: "shortcut" },
+            { name: "تغيير كلمة مرور Google", desc: "تحديث كلمة السر بسرعة", url: "https://myaccount.google.com/security", category: "أمان", type: "shortcut" },
+            { name: "حذف سجل التصفح", desc: "مسح نشاط Google", url: "https://myactivity.google.com", category: "خصوصية", type: "shortcut" },
+            { name: "إدارة كلمات السر", desc: "كل كلمات السر المحفوظة", url: "https://passwords.google.com", category: "أمان", type: "shortcut" },
+            { name: "تنزيل بياناتك (Takeout)", desc: "تصدير كل بيانات Google", url: "https://takeout.google.com", category: "خصوصية", type: "shortcut" },
+            { name: "إعدادات الإعلانات", desc: "التحكم في إعلانات Google", url: "https://adssettings.google.com", category: "خصوصية", type: "shortcut" },
+            { name: "الاشتراكات YouTube", desc: "إدارة القنوات المشترك بها", url: "https://www.youtube.com/feed/channels", category: "ترفيه", type: "shortcut" },
+            { name: "سجل YouTube", desc: "سجل المشاهدة", url: "https://www.youtube.com/feed/history", category: "ترفيه", type: "shortcut" },
+            { name: "Google Drive", desc: "الوصول السريع للملفات", url: "https://drive.google.com", category: "تخزين", type: "shortcut" },
+            { name: "Google Photos", desc: "كل صورك في مكان واحد", url: "https://photos.google.com", category: "تخزين", type: "shortcut" },
+            { name: "Gmail", desc: "فتح البريد الإلكتروني", url: "https://mail.google.com", category: "تواصل", type: "shortcut" },
+            { name: "Google Calendar", desc: "التقويم والمواعيد", url: "https://calendar.google.com", category: "إنتاجية", type: "shortcut" },
+            { name: "Google Keep", desc: "الملاحظات السريعة", url: "https://keep.google.com", category: "إنتاجية", type: "shortcut" },
+            { name: "Google Contacts", desc: "إدارة جهات الاتصال", url: "https://contacts.google.com", category: "تواصل", type: "shortcut" },
+            { name: "Google Maps", desc: "الخرائط والملاحة", url: "https://maps.google.com", category: "أدوات", type: "shortcut" },
+            { name: "Google News", desc: "آخر الأخبار", url: "https://news.google.com", category: "أخبار", type: "shortcut" },
+            { name: "Google Translate", desc: "الترجمة الفورية", url: "https://translate.google.com", category: "أدوات", type: "shortcut" },
+            { name: "YouTube Studio", desc: "إدارة قناتك", url: "https://studio.youtube.com", category: "صناع محتوى", type: "shortcut" },
+            { name: "Google Analytics", desc: "تحليل مواقع الويب", url: "https://analytics.google.com", category: "مطورين", type: "shortcut" },
+            { name: "Google Search Console", desc: "أدوات مشرفي المواقع", url: "https://search.google.com/search-console", category: "مطورين", type: "shortcut" },
+            { name: "Facebook", desc: "فتح فيسبوك", url: "https://facebook.com", category: "تواصل اجتماعي", type: "shortcut" },
+            { name: "Instagram", desc: "فتح انستغرام", url: "https://instagram.com", category: "تواصل اجتماعي", type: "shortcut" },
+            { name: "Twitter / X", desc: "فتح تويتر", url: "https://x.com", category: "تواصل اجتماعي", type: "shortcut" },
+            { name: "WhatsApp Web", desc: "واتساب على المتصفح", url: "https://web.whatsapp.com", category: "تواصل", type: "shortcut" },
+            { name: "Telegram Web", desc: "تيليجرام على المتصفح", url: "https://web.telegram.org", category: "تواصل", type: "shortcut" },
+            { name: "GitHub", desc: "منصة المطورين", url: "https://github.com", category: "مطورين", type: "shortcut" },
+            { name: "Stack Overflow", desc: "مجتمع المطورين", url: "https://stackoverflow.com", category: "مطورين", type: "shortcut" },
+            { name: "ChatGPT", desc: "المساعد الذكي", url: "https://chat.openai.com", category: "ذكاء اصطناعي", type: "shortcut" },
+            { name: "Claude AI", desc: "مساعد Anthropic", url: "https://claude.ai", category: "ذكاء اصطناعي", type: "shortcut" },
+            { name: "Gemini", desc: "ذكاء Google", url: "https://gemini.google.com", category: "ذكاء اصطناعي", type: "shortcut" },
+            { name: "Canva", desc: "تصميم سهل وسريع", url: "https://canva.com", category: "تصميم", type: "shortcut" },
+            { name: "Notion", desc: "تنظيم وإدارة المشاريع", url: "https://notion.so", category: "إنتاجية", type: "shortcut" },
+            { name: "Trello", desc: "إدارة المهام", url: "https://trello.com", category: "إنتاجية", type: "shortcut" },
+            { name: "Spotify Web", desc: "الموسيقى على المتصفح", url: "https://open.spotify.com", category: "ترفيه", type: "shortcut" },
+            { name: "Netflix", desc: "الأفلام والمسلسلات", url: "https://netflix.com", category: "ترفيه", type: "shortcut" },
+            { name: "Amazon", desc: "التسوق العالمي", url: "https://amazon.com", category: "تسوق", type: "shortcut" },
+            { name: "AliExpress", desc: "التسوق الصيني", url: "https://aliexpress.com", category: "تسوق", type: "shortcut" },
+            { name: "eBay", desc: "المزادات والتسوق", url: "https://ebay.com", category: "تسوق", type: "shortcut" },
+            { name: "PayPal", desc: "الدفع الإلكتروني", url: "https://paypal.com", category: "مالية", type: "shortcut" },
+            { name: "Google Pay", desc: "الدفع من Google", url: "https://pay.google.com", category: "مالية", type: "shortcut" },
+            { name: "Speedtest", desc: "قياس سرعة الإنترنت", url: "https://speedtest.net", category: "أدوات", type: "shortcut" },
+            { name: "Weather.com", desc: "حالة الطقس", url: "https://weather.com", category: "أدوات", type: "shortcut" },
+            { name: "Time.is", desc: "الوقت العالمي الدقيق", url: "https://time.is", category: "أدوات", type: "shortcut" },
+            { name: "Wolfram Alpha", desc: "محرك المعرفة", url: "https://wolframalpha.com", category: "تعليم", type: "shortcut" },
+            { name: "Wikipedia", desc: "الموسوعة الحرة", url: "https://wikipedia.org", category: "تعليم", type: "shortcut" },
+            { name: "Khan Academy", desc: "تعليم مجاني", url: "https://khanacademy.org", category: "تعليم", type: "shortcut" },
+            { name: "Coursera", desc: "دورات عالمية", url: "https://coursera.org", category: "تعليم", type: "shortcut" },
+            { name: "Udemy", desc: "دورات مدفوعة", url: "https://udemy.com", category: "تعليم", type: "shortcut" },
+            { name: "Deepl", desc: "ترجمة احترافية", url: "https://deepl.com", category: "أدوات", type: "shortcut" },
+            { name: "Remove.bg", desc: "إزالة خلفية الصور", url: "https://remove.bg", category: "تصميم", type: "shortcut" }
+        ];
+
+        const ACTION_TOOLS = [
+            { name: "فتح إعدادات WiFi", desc: "مباشرة لشبكات الواي فاي", url: "intent://#Intent;action=android.settings.WIFI_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "فتح Bluetooth", desc: "إعدادات البلوتوث", url: "intent://#Intent;action=android.settings.BLUETOOTH_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "فتح GPS / موقع", desc: "إعدادات الموقع", url: "intent://#Intent;action=android.settings.LOCATION_SOURCE_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "فتح الكاميرا", desc: "التقط صورة فوراً", url: "intent://#Intent;action=android.media.action.IMAGE_CAPTURE;end", category: "مباشر", type: "action" },
+            { name: "مصباح يدوي", desc: "تشغيل/إيقاف الفلاش", url: "javascript:alert('يحتاج تطبيق أندرويد أصلي')", category: "مباشر", type: "action" },
+            { name: "حاسبة", desc: "فتح الآلة الحاسبة", url: "intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_CALCULATOR;end", category: "أدوات", type: "action" },
+            { name: "تقويم", desc: "فتح التقويم", url: "intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_CALENDAR;end", category: "أدوات", type: "action" },
+            { name: "ساعة / منبه", desc: "ضبط المنبه", url: "intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.APP_CLOCK;end", category: "أدوات", type: "action" },
+            { name: "رسائل SMS", desc: "فتح الرسائل", url: "sms:", category: "تواصل", type: "action" },
+            { name: "اتصال هاتفي", desc: "فتح لوحة الاتصال", url: "tel:", category: "تواصل", type: "action" },
+            { name: "بريد إلكتروني جديد", desc: "إنشاء رسالة جديدة", url: "mailto:", category: "تواصل", type: "action" },
+            { name: "خرائط - موقعي الحالي", desc: "فتح الخرائط في موقعك", url: "geo:0,0?q=my+location", category: "أدوات", type: "action" },
+            { name: "فتح متجر Play", desc: "متجر التطبيقات", url: "market://details?id=com.android.vending", category: "متجر", type: "action" },
+            { name: "إعدادات التطبيقات", desc: "إدارة كل التطبيقات", url: "intent://#Intent;action=android.settings.APPLICATION_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "بطارية - توفير الطاقة", desc: "إعدادات البطارية", url: "intent://#Intent;action=android.settings.BATTERY_SAVER_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "بيانات الجوال", desc: "استهلاك البيانات", url: "intent://#Intent;action=android.settings.DATA_USAGE_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "شاشة - سطوع", desc: "إعدادات العرض", url: "intent://#Intent;action=android.settings.DISPLAY_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "صوت ونغمات", desc: "التحكم في الصوت", url: "intent://#Intent;action=android.settings.SOUND_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "لغة ولوحة مفاتيح", desc: "تغيير اللغة", url: "intent://#Intent;action=android.settings.LOCALE_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "حسابات Google", desc: "إدارة الحسابات", url: "intent://#Intent;action=android.settings.SYNC_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "تحديث النظام", desc: "البحث عن تحديثات", url: "intent://#Intent;action=android.settings.SYSTEM_UPDATE_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "مشاركة مباشرة", desc: "فتح قائمة المشاركة", url: "intent://#Intent;action=android.intent.action.SEND;end", category: "تواصل", type: "action" },
+            { name: "QR Scanner", desc: "فتح ماسح الباركود", url: "intent://#Intent;action=com.google.zxing.client.android.SCAN;end", category: "أدوات", type: "action" },
+            { name: "ترجمة نص", desc: "ترجمة فورية", url: "https://translate.google.com/?text=", category: "أدوات", type: "action" },
+            { name: "بحث Google صوتي", desc: "تفعيل المايك", url: "intent://#Intent;action=android.speech.action.RECOGNIZE_SPEECH;end", category: "أدوات", type: "action" },
+            { name: "إنشاء ملاحظة", desc: "حفظ ملاحظة سريعة", url: "intent://#Intent;action=android.intent.action.INSERT;vnd.android.cursor.dir/note;end", category: "إنتاجية", type: "action" },
+            { name: "حدث تقويم جديد", desc: "إضافة موعد", url: "intent://#Intent;action=android.intent.action.EDIT;vnd.android.cursor.item/event;end", category: "إنتاجية", type: "action" },
+            { name: "جهة اتصال جديدة", desc: "حفظ رقم جديد", url: "intent://#Intent;action=android.intent.action.INSERT;vnd.android.cursor.dir/raw_contact;end", category: "تواصل", type: "action" },
+            { name: "إنشاء منبه", desc: "ضبط منبه جديد", url: "intent://#Intent;action=android.intent.action.SET_ALARM;end", category: "أدوات", type: "action" },
+            { name: "مؤقت", desc: "ضبط مؤقت زمني", url: "intent://#Intent;action=android.intent.action.SET_TIMER;end", category: "أدوات", type: "action" },
+            { name: "Google Lens", desc: "فتح العدسة", url: "intent://#Intent;action=com.google.android.googlequicksearchbox.LENS;end", category: "ذكاء اصطناعي", type: "action" },
+            { name: "Google Assistant", desc: "تفعيل المساعد", url: "intent://#Intent;action=android.intent.action.VOICE_ASSIST;end", category: "ذكاء اصطناعي", type: "action" },
+            { name: "Nearby Share", desc: "مشاركة الملفات القريبة", url: "intent://#Intent;action=android.settings.NEARBY_SHARING_SETTINGS;end", category: "تواصل", type: "action" },
+            { name: "إعدادات VPN", desc: "فتح VPN", url: "intent://#Intent;action=android.net.vpn.SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "ذاكرة التخزين", desc: "المساحة المتاحة", url: "intent://#Intent;action=android.settings.INTERNAL_STORAGE_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "إعدادات NFC", desc: "تفعيل NFC", url: "intent://#Intent;action=android.settings.NFC_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "وضع الطيران", desc: "تشغيل/إيقاف", url: "intent://#Intent;action=android.settings.AIRPLANE_MODE_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "Hotspot", desc: "نقطة اتصال", url: "intent://#Intent;action=android.settings.TETHER_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "تطبيقات افتراضية", desc: "المتصفح الافتراضي", url: "intent://#Intent;action=android.settings.MANAGE_DEFAULT_APPS_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "إشعارات", desc: "التحكم بالإشعارات", url: "intent://#Intent;action=android.settings.NOTIFICATION_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "إيماءات", desc: "التحكم بالإيماءات", url: "intent://#Intent;action=android.settings.GESTURE_SETTINGS;end", category: "إعدادات", type: "action" },
+            { name: "بحث في الملفات", desc: "مستكشف الملفات", url: "intent://#Intent;action=android.intent.action.VIEW;type=resource/folder;end", category: "ملفات", type: "action" },
+            { name: "Google Tasks", desc: "قائمة المهام", url: "https://tasks.google.com/embed/origin=app", category: "إنتاجية", type: "action" },
+            { name: "تسجيل صوتي", desc: "مسجل الصوت", url: "intent://#Intent;action=android.provider.MediaStore.RECORD_SOUND;end", category: "أدوات", type: "action" },
+            { name: "صباح الخير Google", desc: "روتين الصباح", url: "intent://#Intent;action=com.google.android.apps.gsa.staticplugins.routines.RoutineActivity;end", category: "إنتاجية", type: "action" },
+            { name: "Google Wallet", desc: "المحفظة الإلكترونية", url: "intent://#Intent;action=com.google.android.apps.wallet.MAIN;end", category: "مالية", type: "action" },
+            { name: "إعدادات Developer", desc: "خيارات المطورين", url: "intent://#Intent;action=android.settings.APPLICATION_DEVELOPMENT_SETTINGS;end", category: "مطورين", type: "action" },
+            { name: "إعادة تشغيل", desc: "قائمة الطاقة", url: "intent://#Intent;action=android.intent.action.REBOOT;end", category: "نظام", type: "action" },
+            { name: "حول الهاتف", desc: "معلومات الجهاز", url: "intent://#Intent;action=android.settings.DEVICE_INFO_SETTINGS;end", category: "نظام", type: "action" },
+            { name: "وضع توفير البيانات", desc: "Data Saver", url: "intent://#Intent;action=android.settings.DATA_SAVER_SETTINGS;end", category: "إعدادات", type: "action" }
+        ];
+
+        // ========== التهيئة ==========
+        function init() {
+            checkGoldStatus();
+            allTools = [...SHORTCUT_TOOLS, ...ACTION_TOOLS];
+            filteredTools = [...allTools];
+            renderTools();
+            updateCounts();
+        }
+
+        function checkGoldStatus() {
+            const key = localStorage.getItem('toolvault_gold_license');
+            if (key === 'nourddine_abatal_gold_2026') {
+                activateGold();
+            }
+        }
+
+        function activateGold() {
+            isGold = true;
+            document.getElementById('goldBadge').classList.add('active');
+            document.getElementById('upgradeBanner').style.display = 'none';
+            document.getElementById('lockedCount').textContent = '0';
+            document.getElementById('toolCount').textContent = '1000';
+            updateCounts();
+            renderTools();
+        }
+
+        // ========== عرض الأدوات ==========
+        function renderTools() {
+            const container = document.getElementById('toolsList');
+            container.innerHTML = '';
+
+            if (filteredTools.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <div class="icon">🔍</div>
+                        <p>لا توجد نتائج</p>
+                        <p style="font-size:0.8em;">جرب كلمة بحث أخرى</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const maxShow = isGold ? 1000 : 100;
+            const displayTools = filteredTools.slice(0, maxShow);
+
+            displayTools.forEach(tool => {
+                const card = document.createElement('div');
+                card.className = `tool-card ${tool.type === 'shortcut' ? 'red' : 'green'}`;
+                card.onclick = () => openTool(tool);
+
+                card.innerHTML = `
+                    <div class="tool-info">
+                        <div class="tool-name">${tool.name}</div>
+                        <div class="tool-desc">${tool.desc}</div>
+                        <span class="tool-category ${tool.type === 'shortcut' ? 'cat-shortcut' : 'cat-action'}">${tool.category}</span>
+                    </div>
+                    <button class="tool-btn ${tool.type === 'shortcut' ? 'btn-shortcut' : 'btn-action'}">
+                        ${tool.type === 'shortcut' ? '🔗 فتح' : '⚡ تنفيذ'}
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+
+            // إظهار الأدوات المحجوبة للنسخة المجانية
+            if (!isGold && filteredTools.length > 100) {
+                const lockedDiv = document.createElement('div');
+                lockedDiv.className = 'locked-tools';
+                lockedDiv.innerHTML = `
+                    <div class="lock-icon">🔒</div>
+                    <p><strong>${filteredTools.length - 100}</strong> أداة إضافية محجوبة</p>
+                    <p>ترقَّ للذهبي للوصول الكامل</p>
+                `;
+                container.appendChild(lockedDiv);
+            }
+        }
+
+        function openTool(tool) {
+            if (tool.url.startsWith('javascript:')) {
+                showToast('⚠️ هذه الميزة تحتاج تطبيق أندرويد أصلي');
+                return;
+            }
+            if (tool.type === 'action') {
+                showToast('⚡ جاري التنفيذ...');
+            } else {
+                showToast('🔗 تم فتح الرابط');
+            }
+            window.open(tool.url, '_blank');
+        }
+
+        // ========== التبويب والبحث ==========
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tabShortcut').classList.toggle('active', tab === 'shortcut');
+            document.getElementById('tabAction').classList.toggle('active', tab === 'action');
+            filterTools();
+        }
+
+        function filterTools() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredTools = allTools.filter(tool => {
+                const matchesTab = tool.type === currentTab;
+                const matchesSearch = !query || 
+                    tool.name.toLowerCase().includes(query) ||
+                    tool.desc.toLowerCase().includes(query) ||
+                    tool.category.toLowerCase().includes(query);
+                return matchesTab && matchesSearch;
+            });
+
+            renderTools();
+            updateCounts();
+        }
+
+        function updateCounts() {
+            const shortcutCount = allTools.filter(t => t.type === 'shortcut').length;
+            const actionCount = allTools.filter(t => t.type === 'action').length;
+            document.getElementById('shortcutCount').textContent = shortcutCount;
+            document.getElementById('actionCount').textContent = actionCount;
+        }
+
+        // ========== الدفع ==========
+        function showPayment() {
+            const choice = confirm(
+                '💳 ToolVault ذهبي - 9.99$ مدى الحياة\n\n' +
+                '• 1000 أداة كاملة\n' +
+                '• بحث متقدم\n' +
+                '• تحديثات أسبوعية\n\n' +
+                'OK = Ko-fi | Cancel = PayPal'
+            );
+
+            if (choice) {
+                window.open('https://ko-fi.com/nourddineabatal', '_blank');
+            } else {
+                window.open('https://www.paypal.com/paypalme/nourddineabatal06', '_blank');
+            }
+
+            setTimeout(() => {
+                const key = prompt('🔑 أدخل كود التفعيل:\n(للتجربة: trial)');
+                if (key === 'nourddine_abatal_gold_2026' || key === 'trial') {
+                    localStorage.setItem('toolvault_gold_license', 'nourddine_abatal_gold_2026');
+                    activateGold();
+                    alert('✅ تم تفعيل ToolVault الذهبي!\nشكراً Nourddine Abatal');
+                } else if (key) {
+                    alert('❌ كود غير صحيح\nnourddineabatal06@gmail.com');
+                }
+            }, 2000);
+        }
+
+        // ========== إشعار ==========
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // ========== بدء ==========
+        document.addEventListener('DOMContentLoaded', init);
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>
